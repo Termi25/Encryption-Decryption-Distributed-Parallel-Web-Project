@@ -115,8 +115,11 @@ This project is a multi-service application consisting of a Java backend, Rabbit
 4. **Access the the webpage**:
 
   [http://localhost:7000/main.html](http://localhost:7000/main.html)
+
+---
   
-##Notes:
+## Notes:
+
 - The Java backend reads input files from the mounted fileInput directory.
 - The Node.js API interacts with MongoDB and uses GridFS for file storage.
 - RabbitMQ manages messaging queues between the Java backend and MPI clients.
