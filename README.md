@@ -1,6 +1,8 @@
 # ISM-DAD Project
 
-This project is a multi-service application consisting of a Java backend, RabbitMQ messaging broker, MPI clients, and a Node.js + MongoDB backend API. It is designed to process, store, and manage data efficiently across distributed components.
+This AES Encryptor & Decryptor web app allows you to securely encrypt or decrypt files using the AES algorithm with selectable key lengths and modes. The interface is simple and designed to be user-friendly, helping you protect your sensitive data with robust encryption, using distributed & parallel systems for higher performance in the encryption/decryption process.
+
+The application supports AES 128-bit and 256-bit encryption modes, along with ECB and CBC modes. You can upload your files, set passwords, and manage encryption parameters easily.
 
 ---
 
