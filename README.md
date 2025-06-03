@@ -30,6 +30,10 @@ The application supports AES 128-bit and 256-bit encryption modes, along with EC
 ```
 ---
 
+![System Diagram](dad_project_rusu_marius.drawio.png)
+
+---
+
 ## Component Overview
 
 ### 1. `C01_BackEnd_Javalin`
@@ -42,7 +46,7 @@ The application supports AES 128-bit and 256-bit encryption modes, along with EC
 - Handles messaging and queueing between the backend and MPI clients.
 - Includes health checks for service availability.
 
-### 3. `C04_OpenMPI_Extra_Client` - Has containers c03 and c04 (C03 is the JMS consumer)
+### 3. `C04_OpenMPI_Extra_Client` - Has containers C03 and C04 (C03 is the JMS consumer)
 - MPI client nodes implemented in Java and MPI.
 - Processes distributed computational tasks.
 - Communicates with RabbitMQ and shares data via volumes.
