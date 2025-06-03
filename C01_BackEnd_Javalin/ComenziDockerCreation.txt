@@ -1,0 +1,5 @@
+mvn clean package -DskipTests
+
+
+docker build -t c01-javalin .
+docker run --name c01-javalin --network ism-dad-network -p 7000:7000 c01-javalin

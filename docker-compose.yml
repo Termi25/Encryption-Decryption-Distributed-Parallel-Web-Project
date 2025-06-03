@@ -1,0 +1,114 @@
+version: "3.8"
+
+services:
+  c01-javalin:
+    user: root
+    build:
+      context: ./C01_BackEnd_Javalin
+    container_name: c01-javalin
+    depends_on:
+      c02-rabbitmq:
+        condition: service_healthy
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./C01_BackEnd_Javalin/fileInput:/app/fileInput
+    networks:
+      - ism-dad-network
+
+  c02-rabbitmq:
+    build:
+      context: ./C02_RabbitMQbroker
+      dockerfile: Dockerfile
+    container_name: c02-rabbitmq
+    ports:
+      - "5672:5672"        # default RabbitMQ port
+      - "15672:15672"      # management UI port
+    networks:
+      - ism-dad-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  c03-jms-consumer:
+    build:
+      context: ./C04_OpenMPI_Extra_Client
+      dockerfile: java-app/Dockerfile
+    container_name: c03-jms-consumer
+    depends_on:
+      c02-rabbitmq:
+        condition: service_healthy
+    cap_add:
+      - NET_BIND_SERVICE
+    environment:
+      - OMP_NUM_THREADS=4
+    volumes:
+      - shared-data:/home/mpiuser/data
+      # - ./C04_OpenMPI_Extra_Client/java-app/config/snmpd.conf:/etc/snmp/snmpd.conf:ro
+    tty: true
+    ports:
+      - "16100:16161/udp"
+    networks:
+      ism-dad-network:
+      mpi-net:
+        ipv4_address: 172.28.0.2
+    restart: unless-stopped
+
+  c04-mpi-node:
+    build:
+      context: ./C04_OpenMPI_Extra_Client
+      dockerfile: mpi-node/Dockerfile
+    container_name: c04-mpi-node
+    environment:
+      - OMP_NUM_THREADS=4
+    volumes:
+      - shared-data:/home/mpiuser/data
+    tty: true
+    ports:
+      - "16101:16161/udp"
+    networks:
+      ism-dad-network:
+      mpi-net:
+        ipv4_address: 172.28.0.3
+
+  c05-mongodb:
+    image: mongo:6.0
+    container_name: c05-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - ism-dad-network
+
+  c05-nodejs:
+    build:
+      context: ./C05_NodeJs_MongoDB
+      dockerfile: Dockerfile
+    container_name: c05-nodejs
+    ports:
+      - "5050:5050"
+    environment:
+      - MONGO_URI=mongodb://c05-mongodb:27017
+    depends_on:
+      - c05-mongodb
+    networks:
+      ism-dad-network:
+        aliases:
+          - c05-nodejs
+
+networks:
+  ism-dad-network:
+    external: true
+
+  mpi-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+volumes:
+  shared-data:
+  mongodata:

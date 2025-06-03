@@ -1,0 +1,49 @@
+version: "3.8"
+
+services:
+  java-app:
+    build:
+      context: .
+      dockerfile: java-app/Dockerfile
+    container_name: c03-jms-java-app
+    environment:
+      - OMP_NUM_THREADS=4
+    networks:
+      ism-dad-network:
+      mpi-net:
+        ipv4_address: 172.28.0.2
+    volumes:
+      - shared-data:/home/mpiuser/data
+      - ./mpi-node/config/snmpd.conf:/etc/snmp/snmpd.conf:ro
+    tty: true
+    ports:
+      - "16100:161/udp"  
+
+  mpi-node:
+    build:
+      context: .
+      dockerfile: mpi-node/Dockerfile
+    container_name:  c04-mpi-node
+    environment:
+      - OMP_NUM_THREADS=4
+    networks:
+      ism-dad-network:
+      mpi-net:
+        ipv4_address: 172.28.0.3
+    volumes:
+      - shared-data:/home/mpiuser/data
+    tty: true
+    ports:
+      - "16101:161/udp"
+
+networks:
+  mpi-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+  ism-dad-network:
+    external: true
+
+volumes:
+  shared-data:

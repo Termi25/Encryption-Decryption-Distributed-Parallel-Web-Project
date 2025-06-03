@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  c01-javalin:
+    build: .
+    container_name: c01-javalin
+    networks:
+      ism-dad-network:
+    ports:
+      - "7000:7000"
+    volumes:
+      - ./fileInput:/app/fileInput
+
+networks:
+  ism-dad-network:
+    external: true

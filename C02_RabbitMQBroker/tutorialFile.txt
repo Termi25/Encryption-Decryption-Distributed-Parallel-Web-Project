@@ -1,0 +1,150 @@
+Sure! Here’s a detailed tutorial on building a local container setup where:
+
+RabbitMQ broker runs in a Docker container locally
+
+Two apps communicate using JMS Topics & Queues via RabbitMQ
+
+One app is an Apache TomEE 9/10 container running JMS-enabled Java EE apps (Producer or Consumer)
+
+The other is a standalone Java client (or another TomEE app)
+
+Overview
+Step 1: Run RabbitMQ broker with JMS support in Docker
+
+Step 2: Configure Apache TomEE 9/10 to connect to RabbitMQ as JMS provider
+
+Step 3: Write a simple Producer app (runs inside TomEE)
+
+Step 4: Write a simple Consumer app (runs inside TomEE or standalone)
+
+Step 5: Test message exchange via Topic and Queue
+
+Step 1: Run RabbitMQ Broker in Docker
+Use official RabbitMQ image with management plugin:
+
+bash
+Copy
+Edit
+docker run -d --hostname my-rabbit --name rabbitmq -p 5672:5672 -p 15672:15672 rabbitmq:3-management
+5672: AMQP port
+
+15672: Web UI (http://localhost:15672, default user/pass: guest/guest)
+
+Step 2: Configure Apache TomEE JMS Resources for RabbitMQ
+TomEE by default uses ActiveMQ. To use RabbitMQ JMS client:
+
+Add RabbitMQ JMS client libs (rabbitmq-jms and amqp-client) to TomEE’s lib directory.
+
+Define JMS resources in TomEE’s tomee.xml:
+
+xml
+Copy
+Edit
+<Resource id="jms/RabbitConnectionFactory" type="javax.jms.ConnectionFactory">
+    com.rabbitmq.jms.admin.RMQConnectionFactory
+    <Property name="uri">amqp://guest:guest@localhost:5672</Property>
+</Resource>
+
+<Resource id="jms/MyTopic" type="javax.jms.Topic" class-name="org.apache.activemq.command.ActiveMQTopic">
+    my-topic
+</Resource>
+
+<Resource id="jms/MyQueue" type="javax.jms.Queue" class-name="org.apache.activemq.command.ActiveMQQueue">
+    my-queue
+</Resource>
+Important: The class-name for Topic/Queue above is for ActiveMQ and will not work with RabbitMQ JMS client directly. RabbitMQ JMS client doesn’t provide JNDI bindings for Topic/Queue out of the box.
+
+Recommended workaround:
+Don’t use JNDI Topic/Queue resources for RabbitMQ. Instead, create JMS connection factories and destinations programmatically in your app using RabbitMQ JMS client.
+
+Step 3: Sample Producer (EJB or POJO) in TomEE (using RabbitMQ JMS client programmatically)
+java
+Copy
+Edit
+import com.rabbitmq.jms.admin.RMQConnectionFactory;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
+import javax.jms.*;
+
+@Singleton
+@Startup
+public class ProducerBean {
+
+    private Connection connection;
+    private Session session;
+    private MessageProducer producer;
+
+    @PostConstruct
+    public void init() throws JMSException {
+        RMQConnectionFactory factory = new RMQConnectionFactory();
+        factory.setUri("amqp://guest:guest@localhost:5672");
+
+        connection = factory.createConnection();
+        connection.start();
+
+        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        Topic topic = session.createTopic("my-topic");
+
+        producer = session.createProducer(topic);
+    }
+
+    public void sendMessage(String text) throws JMSException {
+        TextMessage message = session.createTextMessage(text);
+        producer.send(message);
+        System.out.println("Sent message: " + text);
+    }
+
+    @PreDestroy
+    public void cleanup() throws JMSException {
+        if (producer != null) producer.close();
+        if (session != null) session.close();
+        if (connection != null) connection.close();
+    }
+}
+Step 4: Sample Consumer (EJB MDB) in TomEE
+Because RabbitMQ JMS client does not provide a resource adapter for MDB, this is not recommended.
+
+Instead:
+
+Use a Java SE consumer (standalone client) with RabbitMQ JMS client library listening on the same topic or queue.
+
+Step 5: Sample Java SE Consumer (Standalone app)
+java
+Copy
+Edit
+import com.rabbitmq.jms.admin.RMQConnectionFactory;
+import javax.jms.*;
+
+public class RabbitMqConsumer {
+
+    public static void main(String[] args) throws JMSException, InterruptedException {
+        RMQConnectionFactory factory = new RMQConnectionFactory();
+        factory.setUri("amqp://guest:guest@localhost:5672");
+
+        Connection connection = factory.createConnection();
+        connection.start();
+
+        Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+        Topic topic = session.createTopic("my-topic");
+
+        MessageConsumer consumer = session.createConsumer(topic);
+
+        consumer.setMessageListener(message -> {
+            if (message instanceof TextMessage) {
+                try {
+                    System.out.println("Received: " + ((TextMessage) message).getText());
+                } catch (JMSException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        System.out.println("Listening for messages... Press Ctrl+C to exit.");
+
+        Thread.sleep(Long.MAX_VALUE);
+
+        // Normally you'd close resources on shutdown.
+    }
+}
