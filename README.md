@@ -1,4 +1,5 @@
-# ISM-DAD Project
+# Encryption-Decryption-Distributed-Parallel-Web-Project
+(ISM-DAD Project) by Marius Ioan Rusu
 
 This AES Encryptor & Decryptor web app allows you to securely encrypt or decrypt files using the AES algorithm with selectable key lengths and modes. The interface is simple and designed to be user-friendly, helping you protect your sensitive data with robust encryption, using distributed & parallel systems for higher performance in the encryption/decryption process.
 
