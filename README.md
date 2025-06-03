@@ -16,16 +16,20 @@ The application supports AES 128-bit and 256-bit encryption modes, along with EC
 │ ├── src # Java source code
 │ ├── target # Maven build target folder
 │ └── .vscode # VSCode project config
+│
 ├── C02_RabbitMQBroker # RabbitMQ broker Docker setup and config
+│
 ├── C04_OpenMPI_Extra_Client
-│ ├── java-app # Java MPI client source and config
-│ ├── mpi-node # MPI node Docker build and config
+│ ├── java-app # Java MPI client source and config (This is C03 - JMS Consumer that receives the data from C01 and runs the OpenMPI & OpenMP process alongside C04 - MPI Node)
+│ ├── mpi-node # MPI node Docker build and config (this is C04 - MPI Node)
 │ └── .vscode # VSCode project config
+│
 ├── C05_NodeJs_MongoDB
 │ ├── server # Node.js server code
 │ │ ├── db # MongoDB connection setup
 │ │ └── routes # Express routes for API
 │ └── node_modules # Node dependencies
+│
 └── docker-compose.yml # Docker Compose orchestration file
 ```
 ---
@@ -49,50 +53,15 @@ The application supports AES 128-bit and 256-bit encryption modes, along with EC
 ### 3. `C04_OpenMPI_Extra_Client` - Has containers C03 and C04 (C03 is the JMS consumer)
 - MPI client nodes implemented in Java and MPI.
 - Processes distributed computational tasks.
-- Communicates with RabbitMQ and shares data via volumes.
+- Communicates with RabbitMQ and shares data via volumes (receives request from C01 for encryption/decryption and responds with theresult status through JMS, while also sending the data to C05 - Node.JS).
 
 ### 4. `C05_NodeJs_MongoDB`
-- Node.js Express API server.
-- Connects to MongoDB database.
+- Node.js with Express API server.
+- Connects to a local MongoDB database.
 - Implements CRUD operations on `data` collection.
 - Supports file upload/download via GridFS.
 - Implements password verification and updating IV (initialization vector) for requests.
-- Routes include `/database` with endpoints:
-  - GET `/` — Retrieve 50 posts
-  - POST `/receiveInputedData` — Get posts by array of IDs
-  - POST `/receive-form` — Insert new post
-  - DELETE `/:id` — Delete post and associated GridFS file
-  - POST `/uploadProcessedFile` — Upload a file and link it to a post
-  - GET `/download/final/:docId` — Download linked GridFS file
-  - PATCH `/updateIv/:id` — Update request IV
-  - POST `/check-password/:id` — Verify post password
-
----
-
-## Component Overview
-
-### 1. `C01_BackEnd_Javalin`
-- Java backend built on Javalin framework.
-- Responsible for processing input files stored in `fileInput`.
-- Communicates with RabbitMQ for messaging tasks.
-
-### 2. `C02_RabbitMQBroker`
-- RabbitMQ message broker service.
-- Handles messaging and queueing between the backend and MPI clients.
-- Includes health checks for service availability.
-
-### 3. `C04_OpenMPI_Extra_Client`
-- MPI client nodes implemented in Java and MPI.
-- Processes distributed computational tasks.
-- Communicates with RabbitMQ and shares data via volumes.
-
-### 4. `C05_NodeJs_MongoDB`
-- Node.js Express API server.
-- Connects to MongoDB database.
-- Implements CRUD operations on `data` collection.
-- Supports file upload/download via GridFS.
-- Implements password verification and updating IV (initialization vector) for requests.
-- Routes include `/database` with endpoints:
+- Routes include `/database` with endpoints (primarily used by C01 Javalin Backend & C03 JMS Consumer):
   - GET `/` — Retrieve 50 posts
   - POST `/receiveInputedData` — Get posts by array of IDs
   - POST `/receive-form` — Insert new post
@@ -113,21 +82,22 @@ The application supports AES 128-bit and 256-bit encryption modes, along with EC
    ```bash
    docker network create ism-dad-network
    ```
-3. **Build and start all services**:
+   
+3. **Build and start all services** (you need you be in the root path, where the main docker-compose.yl file is):
 
-  ```bash
-    docker-compose up --build
-  ```
+   ```bash
+   docker-compose up --build
+   ```
 
 4. **Access the the webpage**:
 
-  [http://localhost:7000/main.html](http://localhost:7000/main.html)
+   [http://localhost:7000/main.html](http://localhost:7000/main.html)
 
 ---
   
 ## Notes:
 
-- The Java backend reads input files from the mounted fileInput directory.
+- The Java backend reads input files from the mounted fileInput directory (meant for temporary storage for further sending to C03 JMS Consumer for processing).
 - The Node.js API interacts with MongoDB and uses GridFS for file storage.
 - RabbitMQ manages messaging queues between the Java backend and MPI clients.
 - MPI clients perform distributed & parallel processing and share data through mounted volumes.
