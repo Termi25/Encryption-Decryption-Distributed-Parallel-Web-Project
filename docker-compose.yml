@@ -83,6 +83,20 @@ services:
     networks:
       - ism-dad-network
 
+  # c05-mysql:
+  #   image: mysql:8.0
+  #   container_name: c05-mysql
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: yourpassword
+  #     MYSQL_DATABASE: ism_dad
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #   networks:
+  #     - ism-dad-network
+
   c05-nodejs:
     build:
       context: ./C05_NodeJs_MongoDB
@@ -99,6 +113,26 @@ services:
         aliases:
           - c05-nodejs
 
+  # c05-nodejs-mysql:
+  #   build:
+  #     context: ./C05_NodeJs_MySQL
+  #     dockerfile: Dockerfile
+  #   container_name: c05-nodejs-mysql
+  #   ports:
+  #     - "5051:5050"
+  #   environment:
+  #     - DB_HOST=c05-mysql
+  #     - DB_PORT=3306
+  #     - DB_USER=root
+  #     - DB_PASSWORD=yourpassword
+  #     - DB_NAME=ism_dad
+  #   depends_on:
+  #     - c05-mysql
+  #   networks:
+  #     ism-dad-network:
+  #       aliases:
+  #         - c05-nodejs
+
 networks:
   ism-dad-network:
     external: true
@@ -112,3 +146,4 @@ networks:
 volumes:
   shared-data:
   mongodata:
+  # mysql-data:
