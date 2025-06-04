@@ -84,44 +84,44 @@ public class Main {
         });
 
         app.get("/api/data", ctx -> {
-            try{
-                int noRequests = ctx.cookieStore().get("noRequests");
-                if(noRequests>0){
-                    JSONArray jsonReqs=new JSONArray();
-                    for(int i=0;i<noRequests;i++){
-                        JSONObject jsonCookieObj=new JSONObject();
-                        String code=ctx.cookieStore().get("requestDBId" + i);
-                        jsonCookieObj.put("code", code);
-                        jsonReqs.put(jsonCookieObj);
-                    }
+            returnEntireDB(ctx);
+            // try{
+            //     int noRequests = ctx.cookieStore().get("noRequests");
+            //     if(noRequests>0){
+            //         JSONArray jsonReqs=new JSONArray();
+            //         for(int i=0;i<noRequests;i++){
+            //             JSONObject jsonCookieObj=new JSONObject();
+            //             String code=ctx.cookieStore().get("requestDBId" + i);
+            //             jsonCookieObj.put("code", code);
+            //             jsonReqs.put(jsonCookieObj);
+            //         }
 
-                    HttpClient client = HttpClient.newHttpClient();
-                    HttpRequest request = HttpRequest.newBuilder()
-                            .uri(URI.create("http://c05-nodejs:5050/database/receiveInputedData"))
-                            .header("Content-Type", "application/json")
-                            .POST(HttpRequest.BodyPublishers.ofString(jsonReqs.toString()))
-                            .build();
+            //         HttpClient client = HttpClient.newHttpClient();
+            //         HttpRequest request = HttpRequest.newBuilder()
+            //                 .uri(URI.create("http://c05-nodejs:5050/database/receiveInputedData"))
+            //                 .header("Content-Type", "application/json")
+            //                 .POST(HttpRequest.BodyPublishers.ofString(jsonReqs.toString()))
+            //                 .build();
 
-                    HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
-                    JSONArray nodeResArray=new JSONArray(response.body());
-                    List<Map<String,Object>> reqsData = new ArrayList<>();
+            //         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+            //         JSONArray nodeResArray=new JSONArray(response.body());
+            //         List<Map<String,Object>> reqsData = new ArrayList<>();
 
-                    for (int i = 0; i < nodeResArray.length(); i++) {
-                        JSONObject obj = nodeResArray.getJSONObject(i);
-                        reqsData.add(Map.of("fileName",obj.get("fileName"),
-                                "aesLength",obj.get("aesLength"),
-                                "requestIv",obj.get("requestIv"),
-                                "mode",obj.get("mode"),
-                                "operation",obj.get("operation"),
-                                "_id",obj.get("_id")));
-                    }
+            //         for (int i = 0; i < nodeResArray.length(); i++) {
+            //             JSONObject obj = nodeResArray.getJSONObject(i);
+            //             reqsData.add(Map.of("fileName",obj.get("fileName"),
+            //                     "aesLength",obj.get("aesLength"),
+            //                     "requestIv",obj.get("requestIv"),
+            //                     "mode",obj.get("mode"),
+            //                     "operation",obj.get("operation"),
+            //                     "_id",obj.get("_id")));
+            //         }
 
-                    ctx.json(reqsData);
-                }
-            }catch (Exception e){
-                e.printStackTrace();
-                ctx.status(500).result("Internal Server Error");
-            }
+            //         ctx.json(reqsData);
+            //     }
+            // }catch (Exception e){
+            //     e.printStackTrace();
+            // }
 
         });
 
@@ -336,11 +336,11 @@ public class Main {
         for (int i = 0; i < nodeResArray.length(); i++) {
             JSONObject obj = nodeResArray.getJSONObject(i);
             reqsData.add(Map.of("fileName",obj.get("fileName"),
-                    "aesLength",obj.get("aesLength"),
-                    "requestIv",obj.get("requestIv"),
-                    "mode",obj.get("mode"),
-                    "operation",obj.get("operation")));
-            System.out.println(reqsData.get(i));
+                                "aesLength",obj.get("aesLength"),
+                                "requestIv",obj.get("requestIv"),
+                                "mode",obj.get("mode"),
+                                "operation",obj.get("operation"),
+                                "_id",obj.get("_id")));
         }
 
         ctx.json(reqsData);

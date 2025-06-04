@@ -132,3 +132,12 @@ ehthumbs.db
 
 # Windows folder config file
 Desktop.ini
+C02_RabbitMQBroker/comenziCreareContainer.txt
+C02_RabbitMQBroker/RabbitMQServiceGUI.txt
+C02_RabbitMQBroker/tutorialFile.txt
+C04_OpenMPI_Extra_Client/java-app/comenziDocker.txt
+C04_OpenMPI_Extra_Client/mpi-node/comenziBuldDocker.txt
+C05_NodeJs_MongoDB/comanda start mongo.txt
+C05_NodeJs_MongoDB/comenziDocker.txt
+C01_BackEnd_Javalin/target/original-C01_BackEnd_Javalin-1.0-SNAPSHOT.jar
+C01_BackEnd_Javalin/docker-compose.yml
