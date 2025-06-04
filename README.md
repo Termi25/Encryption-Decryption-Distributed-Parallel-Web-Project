@@ -30,6 +30,11 @@ The application supports AES 128-bit and 256-bit encryption modes, along with EC
 │ │ └── routes # Express routes for API
 │ └── node_modules # Node dependencies
 │
+├── C05_NodeJs_MySQL
+│ ├── server # Node.js server code
+│ │ ├── db # MySQL connection setup
+│ │ └── routes # Express routes for API
+│ └── node_modules # Node dependencies
 └── docker-compose.yml # Docker Compose orchestration file
 ```
 ---
@@ -71,6 +76,10 @@ The application supports AES 128-bit and 256-bit encryption modes, along with EC
   - PATCH `/updateIv/:id` — Update request IV
   - POST `/check-password/:id` — Verify post password
 
+### 5. `C05_NodeJs_MySQL`
+- MySQL version of C05_NodeJs_MongoDB
+- Uses BLOB instead of GridFS to store files
+- To switch to it, simply change the docker-compose.yml file by uncommenting the MySQL containers and commenting the MongoDB containers
 ---
 
 ## How to Build and Run
@@ -131,8 +140,8 @@ services:
       dockerfile: Dockerfile
     container_name: c02-rabbitmq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672"        # default RabbitMQ port
+      - "15672:15672"      # management UI port
     networks:
       - ism-dad-network
     healthcheck:
@@ -155,6 +164,7 @@ services:
       - OMP_NUM_THREADS=4
     volumes:
       - shared-data:/home/mpiuser/data
+      # - ./C04_OpenMPI_Extra_Client/java-app/config/snmpd.conf:/etc/snmp/snmpd.conf:ro
     tty: true
     ports:
       - "16100:16161/udp"
@@ -191,6 +201,20 @@ services:
     networks:
       - ism-dad-network
 
+  # c05-mysql:
+  #   image: mysql:8.0
+  #   container_name: c05-mysql
+  #   restart: unless-stopped
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: yourpassword
+  #     MYSQL_DATABASE: ism_dad
+  #   ports:
+  #     - "3306:3306"
+  #   volumes:
+  #     - mysql-data:/var/lib/mysql
+  #   networks:
+  #     - ism-dad-network
+
   c05-nodejs:
     build:
       context: ./C05_NodeJs_MongoDB
@@ -207,6 +231,26 @@ services:
         aliases:
           - c05-nodejs
 
+  # c05-nodejs-mysql:
+  #   build:
+  #     context: ./C05_NodeJs_MySQL
+  #     dockerfile: Dockerfile
+  #   container_name: c05-nodejs-mysql
+  #   ports:
+  #     - "5051:5050"
+  #   environment:
+  #     - DB_HOST=c05-mysql
+  #     - DB_PORT=3306
+  #     - DB_USER=root
+  #     - DB_PASSWORD=yourpassword
+  #     - DB_NAME=ism_dad
+  #   depends_on:
+  #     - c05-mysql
+  #   networks:
+  #     ism-dad-network:
+  #       aliases:
+  #         - c05-nodejs
+
 networks:
   ism-dad-network:
     external: true
@@ -220,3 +264,5 @@ networks:
 volumes:
   shared-data:
   mongodata:
+  # mysql-data:
+
