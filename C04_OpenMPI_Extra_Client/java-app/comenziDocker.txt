@@ -1,6 +1,0 @@
-mvn clean package
-(ignora daca DockerFile deja construieste JAR)
-
-docker build -t c03-java-mpi .
-
-docker run --network ism-dad-network --name c03-java-mpi c03-java-mpi

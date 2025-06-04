@@ -1,4 +1,0 @@
-http://localhost:15672
-
-Username: guest
-PAssword: guest

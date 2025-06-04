@@ -1,3 +1,0 @@
-docker-compose up --build
-
-docker exec -it --user mpiuser container0 mpirun --host container0,container1 -np 2 ./hybrid
