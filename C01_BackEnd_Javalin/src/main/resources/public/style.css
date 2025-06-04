@@ -1,0 +1,194 @@
+@import url('https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Quicksand:wght@300..700&display=swap');
+
+@import "tailwindcss";
+@theme {
+  --font-quicksand: "Quicksand", sans-serif;
+  --font-josefin: "Josefin Sans", sans-serif;
+}
+
+.quicksand-font {
+  font-family: "Quicksand", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 200;
+  font-style: normal;
+}
+
+.josefin-sans-font, h2 {
+  font-family: "Josefin Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 700;
+  font-style: normal;
+}
+
+*{
+    margin: 0em;
+    padding: 0em;
+}
+
+body{
+    background-color: #DBCDB2;
+    height:100%
+}
+
+html{
+    height:100%
+}
+
+.containerHorizontal{
+    display:flex;
+    justify-content: space-around;
+    align-items: flex-start
+}
+
+.containerVertical,.childContainer{
+    display:flex;
+    flex-direction: column;
+    justify-content: space-around;
+}
+
+.childContainer{
+    flex: 1;
+    white-space: nowrap;
+    width: 50vw;
+}
+
+.containerOverflow{
+    overflow: auto;
+}
+
+.field{
+    margin: 0.2em;
+}
+
+.header{
+  font-family: "Josefin Sans", sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  font-style: normal;
+  padding:0.1em;
+  margin:0.1em;
+  padding-top:0.15em;
+}
+
+.headerSection{
+    margin-top:0.5em;
+    height: 3em;
+    color:white;
+    background-color: #454641;
+    display:flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.headerButton, .headerButton:hover{
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+
+    margin:0.1em;
+    font-family: "Josefin Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 18px;
+    padding:0.1em;
+    margin-top:0.3em;
+    margin-right:2em;
+    transition: all 0.2s ease-out;
+}
+
+.headerButton:hover{
+    color:#EAD24C;
+    transition: all 0.2s ease-in;
+    text-decoration: underline;
+}
+
+.standardButton, .deleteButton, .standardButton:hover, .deleteButton:hover{
+    background: none;
+    color: inherit;
+    border: none;
+    padding: 0;
+    font: inherit;
+    cursor: pointer;
+    outline: inherit;
+
+    margin:0.1em;
+    font-family: "Josefin Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+    padding:0.1em;
+    margin-top:0.3em;
+    margin-right:0.3em;
+    transition: all 0.2s ease-out;
+}
+
+.standardButton:hover{
+    color:#EAD24C;
+    transition: all 0.2s ease-in;
+    text-decoration: underline;
+}
+
+.deleteButton:hover{
+    color:#CE2E2E;
+    transition: all 0.2s ease-in;
+    text-decoration: underline;
+}
+
+.form{
+    background-color: #43538F;
+    border-radius: 4px;
+    color:white;
+    padding:0.2em;
+    margin:0.15em;
+}
+
+.left, .right{
+    width: 50vw;
+    flex-basis: auto;
+}
+
+.right{
+    background-color: #CE2E2E;
+    text-align: center;
+    justify-content: center;
+    flex: 3;
+}
+
+.left{
+    padding: 1em;
+    flex: 1;
+}
+
+table {
+      border-collapse: collapse;
+      width: 100%;
+      background-color: #454641;
+    }
+
+thead{
+    font-family: "Josefin Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 400;
+    font-style: normal;
+}
+
+td{
+    font-family: "Quicksand", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 200;
+    font-style: normal;
+}
+
+.input-block {
+    margin-bottom: 0.1em; /* Adjust as needed */
+}
+
+#frequestIv {
+    transition: all 0.3s ease;
+}

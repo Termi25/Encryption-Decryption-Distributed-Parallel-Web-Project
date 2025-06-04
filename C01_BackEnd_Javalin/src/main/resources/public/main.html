@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+    <title>Aes Encryptor Main</title>
+</head>
+<body>
+    <div class="containerVertical">
+        <div class="headerSection">
+            <h2 class="header font-josefin font-bold text-2xl">AES Encryptor (& Decryptor)</h2>
+            <div>
+                <button class="headerButton font-josefin" onclick="window.location.href='/main'">Main Page</button>
+                <button class="headerButton font-josefin" onclick="window.location.href='/about'">About</button>
+            </div>
+        </div>
+
+        <div class="containerHorizontal">
+            <div class="containerVertical form left w-full max-w-md">
+                <h2 class="header underline font-josefin font-bold text-xl">Encrypt file with AES:</h2>
+                <form id="uploadForm" enctype="multipart/form-data">
+
+                    <div class="field quicksand-font w-full mb-4">
+                        AES Algorithm Length
+                        <select name="aesLength" class="bg-[#DBCDB2] rounded-sm text-black w-full px-2 py-1">
+                            <option value="128" selected="selected">128 bits</option>
+                            <option value="256">256 bits</option>
+                        </select>
+                    </div>
+
+                    <div class="field quicksand-font w-full mb-4">
+                        <label for="frequestPass1">
+                            Password
+                            <input type="text" class="bg-[#DBCDB2] rounded-sm text-black w-full px-2 py-1" id="frequestPass1" name="requestPassword" >
+                        </label>
+                    </div>
+
+                    <div class="field quicksand-font w-full mb-4">
+                        <label for="frequestIv">
+                            IV value
+                            <input type="text" class="bg-[#DBCDB2] rounded-sm text-black w-full px-2 py-1" id="frequestIv" name="requestIv" >
+                        </label>
+                    </div>
+
+                    <div class="field quicksand-font w-full mb-4">
+                        Mode
+                        <select name="mode" class="bg-[#DBCDB2] rounded-sm text-black w-full px-2 py-1">
+                            <option value="ecb" selected="selected">ECB</option>
+                            <option value="cbc">CBC</option>
+                        </select>
+                    </div>
+
+                    <div class="field quicksand-font w-full mb-4">
+                        Operation
+                        <select name="operation" class="bg-[#DBCDB2] rounded-sm text-black w-full px-2 py-1">
+                            <option value="encrypt" selected="selected">Encrypt</option>
+                            <option value="decrypt">Decrypt</option>
+                        </select>
+                    </div>
+
+                    <div class="containerVertical quicksand-font">
+                        Provide file for operation
+                        <input type="file" name="files" class="bg-[#DBCDB2] hover:bg-[#c6b69b] rounded-sm text-black">
+                    </div>
+
+                    <input type="submit" class="headerButton" value="Submit" />
+                </form>
+                <div id="result"></div>
+            </div>
+            <div class="containerVertical form right">
+                <div class="containerVertical form right">
+                    <h2 class="header font-josefin underline font-bold text-xl">Check your encryption / decryption:</h2>
+                    <form id="requestsForm" class="flex column justify-center-safe" method="post" action="/check-request">
+                        <div class="containerVertical quicksand-font space-y-8">
+                            <div class="input-block">
+                                <label for="frequestId" class="m-20">
+                                    Request Code
+                                    <input type="text" class="bg-[#DBCDB2] rounded-sm text-black w-72" id="frequestId" name="requestId" >
+                                </label>
+                            </div>
+
+                            <div class="input-block">
+                                <label for="frequestPass2" class="m-20">
+                                    Request Password
+                                    <input type="text" class="bg-[#DBCDB2] rounded-sm text-black w-72" id="frequestPass2" name="requestPass" >
+                                </label>
+                            </div>
+                            <div>
+                                <input type="submit" class="headerButton" value="Submit" />
+                            </div>
+                        </div>
+                    </form>
+                    <div id="result2"></div>
+                </div>
+
+                <div class="containerOverflow border border-[#454641] rounded-lg overflow-hidden dark:border-[#454641] p-5">
+                    <table id="file-table" class="min-w-full divide-y divide-[#DBCDB2] dark:divide-[#DBCDB2]">
+                        <thead class="font-josefin font-medium">
+                        <tr>
+                            <th>Filename</th>
+                            <th>Length</th>
+                            <th>IV Value</th>
+                            <th>Encryption Mode</th>
+                            <th>Operation</th>
+                            <th>Options</th>
+                        </tr>
+                        </thead>
+                        <tbody class="divide-y divide-[#DBCDB2] dark:divide-[#DBCDB2]">
+                        <!-- Dynamic rows will be inserted here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+
+    async function deleteRow(id) {
+        if (!confirm("Are you sure you want to delete this row?")) return;
+
+        try {
+        const res = await fetch(`http://localhost:5050/database/${id}`, {
+            method: 'DELETE',
+        });
+
+        if (res.ok) {
+            await loadData(); // Refresh table
+        } else {
+            alert("Failed to delete row.");
+        }
+        } catch (err) {
+        console.error("Error deleting row:", err);
+        alert("An error occurred while deleting.");
+        }
+    }
+
+    async function loadData() {
+        const response = await fetch('/api/data');
+        const jsonData = await response.json();
+
+        const tbody = document.querySelector('#file-table tbody');
+        tbody.innerHTML = ''; // Clear previous rows
+
+        jsonData.forEach(file => {
+            const row = document.createElement('tr');
+            row.setAttribute('data-id', file._id);
+
+             row.innerHTML = `
+                <td>${file.fileName}</td>
+                <td>${file.aesLength}</td>
+                <td>
+                    <span class="copy-iv hover:text-blue-600" data-iv="${file.requestIv}">${file.requestIv}</span>
+                </td>
+                <td>${file.mode}</td>
+                <td>${file.operation}</td>
+                <td>
+                    <button class="standardButton" onclick="window.location.href='/download/final/${file._id}'">Download</button>
+                    |
+                    <button class="deleteButton bg-red-600 hover:bg-red-700" onclick="deleteRow('${file._id}')">Delete</button>
+                </td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+
+    document.addEventListener('DOMContentLoaded',async function () {
+        
+        await loadData();
+        const aesLengthSelect = document.querySelector('select[name="aesLength"]');
+        const modeSelect = document.querySelector('select[name="mode"]');
+        const passwordInput = document.querySelector('#frequestPass1');
+        const ivInput = document.querySelector('#frequestIv').parentElement.parentElement; // wrap div
+        const ivField = document.querySelector('#frequestIv');
+        const uploadForm = document.getElementById('uploadForm');
+
+        // Show/Hide IV field based on mode
+        function toggleIvField() {
+            if (modeSelect.value === 'cbc') {
+                ivInput.style.display = 'block';
+            } else {
+                ivInput.style.display = 'none';
+            }
+        }
+        toggleIvField();
+        modeSelect.addEventListener('change', toggleIvField);
+
+        // Upload Form Validation
+        uploadForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const aesLength = parseInt(aesLengthSelect.value);
+            const password = passwordInput.value.trim();
+            const mode = modeSelect.value;
+            const iv = ivField.value.trim();
+
+            const requiredLength = aesLength === 128 ? 16 : 32;
+            const isHex = str => /^[0-9a-fA-F]+$/.test(str);
+
+            if (password.length !== requiredLength) {
+                alert(`Password must be exactly ${requiredLength} characters long for AES-${aesLength}.`);
+                return;
+            }
+
+            const ivValue = document.querySelector('#frequestIv').value.trim();
+
+            if (mode === 'cbc' && ivValue) {
+                if (ivValue.length !== 32 || !isHex(ivValue)) {
+                    alert('IV must be a 32-character hexadecimal string (16 bytes) for CBC mode.');
+                    return;
+                }
+            }
+
+            // Submit if valid
+            const formData = new FormData(uploadForm);
+            try {
+                const response = await fetch('/send-request', {
+                    method: 'POST',
+                    body: formData
+                });
+                const text = await response.text();
+                document.getElementById('result').innerText = text;
+                await loadData();
+                e.target.reset();
+                toggleIvField(); // Reset field visibility
+            } catch (err) {
+                console.error('Upload failed:', err);
+                document.getElementById('result').innerText = 'Upload failed!';
+            }
+        });
+
+        // Requests Form Validation
+        document.getElementById('requestsForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const requestId = document.getElementById('frequestId').value.trim();
+            const requestPass = document.getElementById('frequestPass2').value.trim();
+
+            if (!requestId || !requestPass) {
+                alert("Both Request Code and Password are required.");
+                return;
+            }
+
+            const jsonBody = { requestId, requestPass };
+
+            try {
+                const res = await fetch("/check-request", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify(jsonBody)
+                });
+
+                const text = await res.text();
+                document.getElementById('result2').innerText = text;
+                await loadData();
+                e.target.reset();
+            } catch (error) {
+                console.error("Error submitting request:", error);
+                document.getElementById('result2').innerText = "An error occurred while checking the request.";
+            }
+        });
+
+        const ws = new WebSocket("ws://localhost:5050/ws-status");
+
+        ws.onmessage = async (event) => {
+            const resultDiv = document.getElementById("result");
+            await loadData();
+            resultDiv.innerText = `Status: ${event.data}`;
+        };
+
+        document.querySelectorAll(".copy-iv").forEach(span => {
+            span.style.cursor = "pointer"; // Optional: visual cue
+            span.title = "Click to copy";  // Optional: tooltip
+
+            span.addEventListener("click", async () => {
+            const iv = span.getAttribute("data-iv");
+
+            try {
+                await navigator.clipboard.writeText(iv);
+                span.textContent = "Copied!";
+                setTimeout(() => {
+                span.textContent = iv;
+                }, 1000);
+            } catch (err) {
+                console.error("Clipboard copy failed:", err);
+            }
+            });
+        });
+    });
+</script>
+
+</html>

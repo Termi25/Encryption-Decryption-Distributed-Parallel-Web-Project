@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:ital,wght@0,100..700;1,100..700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css" />
+    <title>About AES Encryptor</title>
+</head>
+<body>
+    <div class="containerVertical">
+        <div class="headerSection">
+            <h2 class="header font-josefin font-bold text-2xl">AES Encryptor (& Decryptor)</h2>
+            <div>
+                <button class="headerButton font-josefin" onclick="window.location.href='/main'">Main Page</button>
+                <button class="headerButton font-josefin" onclick="window.location.href='/about'">About</button>
+            </div>
+        </div>
+
+        <div class="containerHorizontal">
+            <!-- About Section -->
+            <div class="containerVertical form right rounded-2xl flex-grow mr-4">
+                <h2 class="header underline font-josefin font-bold text-xl">About This Tool</h2>
+                <div class="quicksand-font w-full space-y-4">
+                    <div>
+                        <p>
+                            This AES Encryptor & Decryptor web app allows you to securely encrypt or decrypt files using the AES algorithm with selectable key lengths and modes. The interface is simple and designed to be user-friendly, helping you protect your sensitive data with robust encryption.
+                        </p>
+                    </div>
+                    <br>
+                    <div>
+                        <p>
+                            The application supports AES 128-bit and 256-bit encryption modes, along with ECB and CBC modes. You can upload your files, set passwords, and manage encryption parameters easily.
+                        </p>
+                    </div>
+                    <div>
+                        <img src="/images/dad_project_rusu_marius.drawio.png" alt="Encryption/Decryption System Diagram">
+                    </div>
+                </div>
+            </div>
+
+            <!-- SNMP Section -->
+            <div class="containerVertical form left rounded-2xl w-50">
+                <h2 class="header underline font-josefin font-bold text-xl">SNMP Hardware Monitoring</h2>
+                <div class="quicksand-font w-full space-y-4">
+                    <div>
+                        <h4 class="font-semibold text-lg">JMS Consumer Container</h4>
+                        <p>CPU Usage: <span id="jms-cpu">Loading...</span>%</p>
+                        <p>Memory Usage: <span id="jms-mem">Loading...</span>%</p>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-lg">MPI Node Container</h4>
+                        <p>CPU Usage: <span id="mpi-cpu">Loading...</span>%</p>
+                        <p>Memory Usage: <span id="mpi-mem">Loading...</span>%</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    async function loadSnmpMetrics() {
+        try {
+            const res = await fetch('/api/snmp-status');
+            const data = await res.json();
+
+            console.log(data)
+            document.getElementById('jms-cpu').innerText = data.jmsConsumer.cpuUsagePercent ?? 'N/A';
+            document.getElementById('jms-mem').innerText = data.jmsConsumer.memoryUsagePercent ?? 'N/A';
+            document.getElementById('mpi-cpu').innerText = data.mpiNode.cpuUsagePercent ?? 'N/A';
+            document.getElementById('mpi-mem').innerText = data.mpiNode.memoryUsagePercent ?? 'N/A';
+        } catch (e) {
+            console.error('Failed to load SNMP metrics', e);
+        }
+    }
+
+    // loadSnmpMetrics();
+    // setInterval(loadSnmpMetrics, 10000);
+</script>
+</html>
