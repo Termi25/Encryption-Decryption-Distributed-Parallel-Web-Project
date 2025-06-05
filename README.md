@@ -20,7 +20,8 @@ The application supports AES 128-bit and 256-bit encryption modes, along with EC
 ├── C02_RabbitMQBroker # RabbitMQ broker Docker setup and config
 │
 ├── C04_OpenMPI_Extra_Client
-│ ├── java-app # Java MPI client source and config (This is C03 - JMS Consumer that receives the data from C01 and runs the OpenMPI & OpenMP process alongside C04 - MPI Node)
+│ ├── java-app # Java MPI client source and config (This is C03 - JMS Consumer that receives
+│ │            # the data from C01 and runs the OpenMPI & OpenMP process alongside C04 - MPI Node)
 │ ├── mpi-node # MPI node Docker build and config (this is C04 - MPI Node)
 │ └── .vscode # VSCode project config
 │
